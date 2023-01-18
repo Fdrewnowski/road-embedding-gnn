@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch import Tensor
 from torch.nn import Module
 import torch.nn.functional as F
-from .utils import setup_module
+from .setup import setup_module
 from torch_geometric.utils import negative_sampling
 
 EPS = 1e-15

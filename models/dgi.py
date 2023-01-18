@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch import Tensor
 from torch.nn import Module
 import torch.nn.functional as F
-from .utils import setup_module
+from .setup import setup_module
 from torch_geometric.utils import negative_sampling
 
 
@@ -51,7 +51,7 @@ class DGI(nn.Module):
                 alpha_l: float = 2,
                 concat_hidden: bool = False,
                 decoder: Optional[Module] = None):
-        super(DGI).__init__()
+        super(DGI, self).__init__()
 
         self._encoder_type = encoder_type
         self._decoder_type = decoder_type
@@ -70,11 +70,6 @@ class DGI(nn.Module):
         else:
             enc_num_hidden = num_hidden
             enc_nhead = 1
-
-        dec_in_dim = num_hidden
-        dec_num_hidden = num_hidden // nhead_out if decoder_type in ("gat", "dotgat") else num_hidden 
-
-
 
         self.encoder = setup_module(
             m_type=encoder_type,
@@ -96,12 +91,12 @@ class DGI(nn.Module):
 
 
 
-        self.discriminator = Discriminator(enc_num_hidden, enc_num_hidden)
+        self.discriminator = Discriminator(num_hidden, num_hidden)
         self.loss = nn.BCEWithLogitsLoss()
 
     def forward(self, g, features):
-        positive = self.encoder(g, features, corrupt=False)
-        negative = self.encoder(g, features, corrupt=True)
+        positive = self.encoder(g, features) # , corrupt=False
+        negative = self.encoder(g, features) # , corrupt=True
         summary = torch.sigmoid(positive.mean(dim=0))
 
         positive = self.discriminator(positive, summary)

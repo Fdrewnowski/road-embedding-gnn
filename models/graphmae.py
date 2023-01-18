@@ -4,12 +4,10 @@ from functools import partial
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
-from .gat import GAT
-from .gcn import GCN
-from .loss_func import sce_loss
-from .utils import setup_module
-from graphmae.utils import create_norm, drop_edge
+from .setup import setup_module
+from utils import create_norm, drop_edge
 
 
 
@@ -117,10 +115,22 @@ class GraphMAE(nn.Module):
         if loss_fn == "mse":
             criterion = nn.MSELoss()
         elif loss_fn == "sce":
-            criterion = partial(sce_loss, alpha=alpha_l)
+            criterion = partial(self.sce_loss, alpha=alpha_l)
         else:
             raise NotImplementedError
         return criterion
+
+    def sce_loss(self, x, y, alpha=3):
+        x = F.normalize(x, p=2, dim=-1)
+        y = F.normalize(y, p=2, dim=-1)
+
+        # loss =  - (x * y).sum(dim=-1)
+        # loss = (x_h - y_h).norm(dim=1).pow(alpha)
+
+        loss = (1 - (x * y).sum(dim=-1)).pow_(alpha)
+
+        loss = loss.mean()
+        return loss
     
     def encoding_mask_noise(self, g, x, mask_rate=0.3):
         num_nodes = g.num_nodes()

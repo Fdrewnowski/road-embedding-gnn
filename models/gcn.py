@@ -6,7 +6,7 @@ import dgl
 import dgl.function as fn
 from dgl.utils import expand_as_pair
 
-from graphmae.utils import create_activation
+from utils import create_activation
 
 
 class GCN(nn.Module):
