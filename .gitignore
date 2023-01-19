@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# my files
+secret.py
+wandb/
+data/models
+data/raw_data

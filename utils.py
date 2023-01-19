@@ -9,10 +9,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 import yaml
-#import wandb
+import wandb
 from sklearn.metrics import f1_score as sk_f1_score, recall_score as sk_recall_score
 from torch import optim as optim
-
+from secret import WANDB_KEY
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
 
@@ -230,13 +230,13 @@ def load_best_configs(args, path):
 # ------ logging ------
 
 class TBLogger(object):
-    def __init__(self, name: str, wandb_api_key: str = "", project: str = "train-smae", options={}):
+    def __init__(self, name: str, wandb_api_key: str = "", project: str = "road-embedding-gnn", entity="fdrewnowski", options={}):
         super(TBLogger, self).__init__()
-        os.environ['WANDB_API_KEY'] = "976b2a271b5ec8862fb46ea4dd11943fa1a61c5d"#wandb_api_key
+        os.environ['WANDB_API_KEY'] = WANDB_KEY#wandb_api_key
         self.writer = wandb.init(
-            project=project, entity="bikeguessr", name=name)
+            project=project, entity=entity, name=name, config=options)
         assert self.writer is wandb.run
-        wandb.config = options
+        #wandb.config = options
 
     def note(self, metrics, step):
         wandb.log(metrics, step=step)
