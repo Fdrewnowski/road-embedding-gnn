@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from .setup import setup_module
 from utils import create_norm, drop_edge
 
-
+from sklearn.metrics import average_precision_score
 
 
 
@@ -18,6 +18,7 @@ class GraphMAE(nn.Module):
             self,
             in_dim: int,
             num_hidden: int,
+            out_dim: int,
             num_layers: int,
             nhead: int,
             nhead_out: int,
@@ -52,12 +53,14 @@ class GraphMAE(nn.Module):
         assert num_hidden % nhead_out == 0
         if encoder_type in ("gat", "dotgat"):
             enc_num_hidden = num_hidden // nhead
+            enc_out_dim = out_dim // nhead
             enc_nhead = nhead
         else:
             enc_num_hidden = num_hidden
+            enc_out_dim = out_dim
             enc_nhead = 1
 
-        dec_in_dim = num_hidden
+        dec_in_dim = out_dim
         dec_num_hidden = num_hidden // nhead_out if decoder_type in ("gat", "dotgat") else num_hidden 
 
         # build encoder
@@ -66,7 +69,7 @@ class GraphMAE(nn.Module):
             enc_dec="encoding",
             in_dim=in_dim,
             num_hidden=enc_num_hidden,
-            out_dim=enc_num_hidden,
+            out_dim=enc_out_dim,
             num_layers=num_layers,
             nhead=enc_nhead,
             nhead_out=enc_nhead,
@@ -106,7 +109,7 @@ class GraphMAE(nn.Module):
 
         # * setup loss function
         self.criterion = self.setup_loss_fn(loss_fn, alpha_l)
-
+        
     @property
     def output_hidden_dim(self):
         return self._output_hidden_size
@@ -166,7 +169,7 @@ class GraphMAE(nn.Module):
         # ---- attribute reconstruction ----
         loss = self.mask_attr_prediction(g, x)
         loss_item = {"loss": loss.item()}
-        return loss, loss_item
+        return loss
     
     def mask_attr_prediction(self, g, x):
         pre_use_g, use_x, (mask_nodes, keep_nodes) = self.encoding_mask_noise(g, x, self._mask_rate)
@@ -196,12 +199,16 @@ class GraphMAE(nn.Module):
         x_init = x[mask_nodes]
         x_rec = recon[mask_nodes]
 
+        #print(x_init.shape, x_rec.shape)
+        #ap = average_precision_score(x_init, x_rec)
+
         loss = self.criterion(x_rec, x_init)
-        return loss
+        return loss #, ap
 
     def embed(self, g, x):
         rep = self.encoder(g, x)
         return rep
+
 
     @property
     def enc_params(self):

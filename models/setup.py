@@ -7,6 +7,7 @@ import torch.nn as nn
 
 from .gat import GAT
 from .gcn import GCN
+from .gin import GIN
 
 from utils import create_norm
 
@@ -31,34 +32,18 @@ def setup_module(m_type, enc_dec, in_dim, num_hidden, out_dim, num_layers, dropo
             norm=create_norm(norm),
             encoding=(enc_dec == "encoding"),
         )
-    # elif m_type == "dotgat":
-    #     mod = DotGAT(
-    #         in_dim=in_dim,
-    #         num_hidden=num_hidden,
-    #         out_dim=out_dim,
-    #         num_layers=num_layers,
-    #         nhead=nhead,
-    #         nhead_out=nhead_out,
-    #         concat_out=concat_out,
-    #         activation=activation,
-    #         feat_drop=dropout,
-    #         attn_drop=attn_drop,
-    #         residual=residual,
-    #         norm=create_norm(norm),
-    #         encoding=(enc_dec == "encoding"),
-    #     )
-    # elif m_type == "gin":
-    #     mod = GIN(
-    #         in_dim=in_dim,
-    #         num_hidden=num_hidden,
-    #         out_dim=out_dim,
-    #         num_layers=num_layers,
-    #         dropout=dropout,
-    #         activation=activation,
-    #         residual=residual,
-    #         norm=norm,
-    #         encoding=(enc_dec == "encoding"),
-    #     )
+    elif m_type == "gin":
+        mod = GIN(
+            in_dim=in_dim,
+            num_hidden=num_hidden,
+            out_dim=out_dim,
+            num_layers=num_layers,
+            dropout=dropout,
+            activation=activation,
+            residual=residual,
+            norm=norm,
+            encoding=(enc_dec == "encoding"),
+        )
     elif m_type == "gcn":
         mod = GCN(
             in_dim=in_dim, 

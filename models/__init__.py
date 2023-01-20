@@ -6,6 +6,7 @@ def build_model(args, model_type) -> GraphMAE:
     num_heads = args.num_heads
     num_out_heads = args.num_out_heads
     num_hidden = args.num_hidden
+    out_dim = args.out_dim
     num_layers = args.num_layers
     residual = args.residual
     attn_drop = args.attn_drop
@@ -30,6 +31,7 @@ def build_model(args, model_type) -> GraphMAE:
         model = GraphMAE(
             in_dim=num_features,
             num_hidden=num_hidden,
+            out_dim=out_dim,
             num_layers=num_layers,
             nhead=num_heads,
             nhead_out=num_out_heads,
@@ -52,6 +54,7 @@ def build_model(args, model_type) -> GraphMAE:
         model = GAE(
             in_dim=num_features,
             num_hidden=num_hidden,
+            out_dim=out_dim,
             num_layers=num_layers,
             nhead=num_heads,
             nhead_out=num_out_heads,
@@ -74,6 +77,7 @@ def build_model(args, model_type) -> GraphMAE:
         model = DGI(
             in_dim=num_features,
             num_hidden=num_hidden,
+            out_dim=out_dim,
             num_layers=num_layers,
             nhead=num_heads,
             nhead_out=num_out_heads,

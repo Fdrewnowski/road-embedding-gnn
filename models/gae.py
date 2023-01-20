@@ -25,6 +25,7 @@ class GAE(nn.Module):
     def __init__(self, 
                 in_dim: int,
                 num_hidden: int,
+                out_dim: int,
                 num_layers: int,
                 nhead: int,
                 nhead_out: int,
@@ -58,9 +59,11 @@ class GAE(nn.Module):
         assert num_hidden % nhead_out == 0
         if encoder_type in ("gat", "dotgat"):
             enc_num_hidden = num_hidden // nhead
+            enc_out_dim = out_dim // nhead
             enc_nhead = nhead
         else:
             enc_num_hidden = num_hidden
+            enc_out_dim = out_dim
             enc_nhead = 1
 
         dec_in_dim = num_hidden
@@ -72,7 +75,7 @@ class GAE(nn.Module):
             enc_dec="encoding",
             in_dim=in_dim,
             num_hidden=enc_num_hidden,
-            out_dim=enc_num_hidden,
+            out_dim=enc_out_dim,
             num_layers=num_layers,
             nhead=enc_nhead,
             nhead_out=enc_nhead,

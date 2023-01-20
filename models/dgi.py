@@ -33,6 +33,7 @@ class DGI(nn.Module):
     def __init__(self, 
                 in_dim: int,
                 num_hidden: int,
+                out_dim: int,
                 num_layers: int,
                 nhead: int,
                 nhead_out: int,
@@ -66,9 +67,11 @@ class DGI(nn.Module):
         assert num_hidden % nhead_out == 0
         if encoder_type in ("gat", "dotgat"):
             enc_num_hidden = num_hidden // nhead
+            enc_out_dim = out_dim // nhead
             enc_nhead = nhead
         else:
             enc_num_hidden = num_hidden
+            enc_out_dim = out_dim
             enc_nhead = 1
 
         self.encoder = setup_module(
@@ -76,7 +79,7 @@ class DGI(nn.Module):
             enc_dec="encoding",
             in_dim=in_dim,
             num_hidden=enc_num_hidden,
-            out_dim=enc_num_hidden,
+            out_dim=enc_out_dim,
             num_layers=num_layers,
             nhead=enc_nhead,
             nhead_out=enc_nhead,
@@ -91,7 +94,7 @@ class DGI(nn.Module):
 
 
 
-        self.discriminator = Discriminator(num_hidden, num_hidden)
+        self.discriminator = Discriminator(enc_out_dim, enc_out_dim)
         self.loss = nn.BCEWithLogitsLoss()
 
     def forward(self, g, features):
