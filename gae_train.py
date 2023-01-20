@@ -7,7 +7,7 @@ from models import GraphMAE, build_model
 from datetime import datetime
 import numpy as np
 
-from data.load_data import load_data
+from models.load_data import load_data
 from tqdm import tqdm
 from torch_geometric.utils import negative_sampling
 from utils import (TBLogger, build_args, create_optimizer,
@@ -120,8 +120,8 @@ if __name__ == '__main__':
     logger = TBLogger(name="{}_{}".format(dataset, current_time), entity="fdrewnowski", options=options)
     print(model.eval())
     # init optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=args.weight_decay)
-    last_model, train_stats, val_stats, best_representation = train_gae(model, optimizer, train_graphs, val_graph, logger, epochs=50)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    last_model, train_stats, val_stats, best_representation = train_gae(model, optimizer, train_graphs, val_graph, logger, epochs=args.max_epoch)
 
     import pickle
     with open("./data/raw_data/GAE_{}.pkl".format(datetime.now().strftime('%Y_%m_%d_%H_%M')), 'wb') as handle:

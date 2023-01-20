@@ -10,7 +10,7 @@ import torch
 from dgl.data.utils import load_graphs
 from dgl.heterograph import DGLHeteroGraph
 from tqdm import tqdm
-from data.load_data import load_data
+from models.load_data import load_data
 
 #from bikeguessr_transform import DATA_OUTPUT, _sizeof_fmt, load_transform_dir_bikeguessr
 #from graphmae.evaluation import (LogisticRegression, f1,
