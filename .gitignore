@@ -133,3 +133,6 @@ secret.py
 wandb/
 data/models
 data/raw_data
+data/transformed
+cache/
+*__pycache__/
