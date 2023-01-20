@@ -16,10 +16,11 @@ from tqdm import tqdm
 # train deep graph infomax
 def train_dgi(model, optimizer, train_graphs, val_graphs, logger, args, experiment_time):
     
-    best = 1e9
-    best_val_representations = []
     train_loss = [[] for i in range(0, len(train_graphs))]
     val_losses = [[] for i in range(0, len(val_graphs))]
+    best_val_representations = []
+
+    best = 1e9
     early_stopping = args.max_epoch_f
     early_stopping_counter = 0
 
@@ -58,7 +59,7 @@ def train_dgi(model, optimizer, train_graphs, val_graphs, logger, args, experime
             with torch.no_grad():
                 for val_graph in val_graphs:
                     best_val_representations.append(model.encoder(val_graph,
-                                                                  val_graph.ndata['feat']).cpu()
+                                                                  val_graph.ndata['feat']).cpu().detach().numpy()
                                                     )
 
             torch.save(model.cpu().state_dict(), 
@@ -94,10 +95,11 @@ def setup_dgi_training(args, train_graphs, val_graph, dataset):
             "out_dim": args.out_dim,
             "layers": args.num_layers,
             "in_drop": args.in_drop,
-            "optimizer": "adam"
+            "optimizer": "adam",
+            "dataset": dataset
     }
 
-    logger = TBLogger(name="{}_{}".format(dataset, current_time), entity="fdrewnowski", options=options)
+    logger = TBLogger(name="{}_{}".format(options['architecture'], current_time), entity="fdrewnowski", options=options)
     model = build_model(args, 'dgi')
     print(model.eval())
     dgi_optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
@@ -128,5 +130,4 @@ if __name__ == '__main__':
     train_graphs, val_graphs = load_data(directory+dataset+".bin")
 
 
-    
     setup_dgi_training(args, train_graphs, val_graphs, dataset)

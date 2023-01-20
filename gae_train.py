@@ -2,10 +2,9 @@
 import logging
 import datetime
 import torch
-import torch.nn as nn
-from models import GraphMAE, build_model
 from datetime import datetime
-import numpy as np
+from models import GraphMAE, build_model
+import pickle
 
 from models.load_data import load_data
 from tqdm import tqdm
@@ -15,29 +14,32 @@ from utils import (TBLogger, build_args, create_optimizer,
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
 
-def train_gae(model, optimizer, train_graphs, val_graph, logger, epochs=10):
-    val_adj = val_graph.adjacency_matrix().coalesce().indices()
-    val_features = val_graph.ndata['feat']
+def train_gae(model, optimizer, train_graphs, val_graphs, logger, args, experiment_time):
 
-    train_loss = [[],[],[],[],[],[],[],[],[],[]]
-    train_auc = [[],[],[],[],[],[],[],[],[],[]]
-    train_ap = [[],[],[],[],[],[],[],[],[],[]]
+    train_loss = [[] for i in range(0, len(train_graphs))]
+    train_auc = [[] for i in range(0, len(train_graphs))]
+    train_ap = [[] for i in range(0, len(train_graphs))]
 
-    val_loss = []
-    val_auc = []
-    val_ap = []
+    val_loss = [[] for i in range(0, len(val_graphs))]
+    val_auc = [[] for i in range(0, len(val_graphs))]
+    val_ap = [[] for i in range(0, len(val_graphs))]
+    
+    best_representation = []
     
     best_l = 1e9
-    
-    best_representation = None
+    early_stopping = args.max_epoch_f
+    early_stopping_counter = 0
 
-    for epoch in tqdm(range(1, epochs + 1), total=epochs):
+    for epoch in tqdm(range(1, args.max_epoch + 1), total=args.max_epoch):
         logging_dict = {}
         total_loss = 0
         total_auc = 0
         total_ap = 0
-        experiment_time = datetime.now().strftime('%Y_%m_%d_%H_%M')
+        total_val_loss = 0
+        total_val_auc = 0
+        total_val_ap = 0
 
+        # train model
         for idx, graph in enumerate(train_graphs):
             adj = graph.adjacency_matrix().coalesce().indices()
             #adj = adj[graph.ndata['train']]
@@ -46,14 +48,12 @@ def train_gae(model, optimizer, train_graphs, val_graph, logger, epochs=10):
             optimizer.zero_grad()
             z = model.encode(graph, features)
             loss = model.recon_loss(z, adj)
-            #if args.variational:
-            #   loss = loss + (1 / data.num_nodes) * model.kl_loss()
+
             loss.backward()
             optimizer.step()
-            loss = loss.item()
-            total_loss += loss
+            total_loss += loss.item()
             
-
+            # eval train set
             model.eval()
             with torch.no_grad():
                 z = model.encode(graph, features)
@@ -63,66 +63,110 @@ def train_gae(model, optimizer, train_graphs, val_graph, logger, epochs=10):
             total_auc += auc
             total_ap += ap
 
-            train_loss[idx].append(loss)
-            train_auc[idx].append(auc)
-            train_ap[idx].append(ap)
+            train_loss[idx].append(loss.item())
+            train_auc[idx].append(auc.item())
+            train_ap[idx].append(ap.item())
 
-        logging_dict['Loss/train'] = total_loss/epochs
-        logging_dict['AUC/train'] = total_auc/epochs
-        logging_dict['AP/train'] = total_ap/epochs
+        logging_dict['Loss/train'] = total_loss/len(train_graphs)
+        logging_dict['AUC/train'] = total_auc/len(train_graphs)
+        logging_dict['AP/train'] = total_ap/len(train_graphs)
 
+        # evaluate validation set
+        val_representations = []
         model.eval()
         with torch.no_grad():
-            z = model.encode(val_graph, val_features)
-            val_neg_edge_index = negative_sampling(val_adj, z.size(0))
-            loss = model.recon_loss(z, val_adj, val_neg_edge_index)
-        auc, ap = model.test(z, val_adj, val_neg_edge_index)
-        
-        if loss < best_l:
-            best_l = loss
-            best_t = epoch
-            best_representation = z
-                            
-            torch.save(model.state_dict(), "data/models/gae_{}.bin".format(experiment_time))
-            #else:
-            #    cnt_wait += 1
+            for idx, val_graph in enumerate(val_graphs):
+                val_adj = val_graph.adjacency_matrix().coalesce().indices()
+                val_features = val_graph.ndata['feat']
 
+                z = model.encode(val_graph, val_features)
+                val_neg_edge_index = negative_sampling(val_adj, z.size(0))
+                loss = model.recon_loss(z, val_adj, val_neg_edge_index)
+                total_val_loss += loss.item()
+                auc, ap = model.test(z, val_adj, val_neg_edge_index)
 
-        logging_dict['Loss/val'] = loss.item()
-        logging_dict['AUC/val'] = auc
-        logging_dict['AP/val'] = ap
+                total_val_auc += auc.item()
+                total_val_ap += ap.item()
+                val_representations.append(z.cpu().detach().numpy())
 
+                val_loss[idx].append(loss.item())
+                val_auc[idx].append(auc.item())
+                val_ap[idx].append(ap.item())
+
+        logging_dict['Loss/val'] = total_val_loss/len(val_graphs)
+        logging_dict['AUC/val'] = total_val_auc/len(val_graphs)
+        logging_dict['AP/val'] = total_val_ap/len(val_graphs)
         logger.note(logging_dict, step=epoch)
+        
+        if total_val_loss < best_l:
+            best_l = total_val_loss
+            early_stopping_counter = 0
+            best_representation = val_representations
 
-        val_loss.append(loss.item())
-        val_auc.append(auc)
-        val_ap.append(ap)
-    return (model, [train_loss, train_auc, train_ap], [val_loss, val_auc, val_ap], best_representation)
+            torch.save(model.cpu().state_dict(),
+                        "data/models/gae_{}_{}_{}_{}_{}.bin".format(args.encoder,
+                                                                args.num_hidden,
+                                                                args.out_dim,
+                                                                args.num_layers,
+                                                                experiment_time)
+                        )
+
+        if early_stopping_counter >= early_stopping:
+            break
+        else:
+            early_stopping_counter += 1
+
+    logger.finish()
+    return ([train_loss, train_auc, train_ap], [val_loss, val_auc, val_ap], best_representation)
+
+
+def setup_gae_training(args, train_graphs, val_graph, dataset):
+
+    current_time = datetime.now().strftime("%m_%d_%H_%M_%S")
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    
+    options = {
+            "architecture":"GAE",
+            "encoder_type":args.encoder,
+            "hidden_dim": args.num_hidden,
+            "out_dim": args.out_dim,
+            "layers": args.num_layers,
+            "in_drop": args.in_drop,
+            "optimizer": "adam",
+            "dataset": dataset
+    }
+
+    logger = TBLogger(name="{}_{}".format(options['architecture'], current_time), entity="fdrewnowski", options=options)
+    model = build_model(args, 'gae')
+    print(model.eval())
+    dgi_optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    train_stats, val_stats, best_representation = train_gae(model, 
+                                                            dgi_optimizer, 
+                                                            train_graphs, 
+                                                            val_graph, 
+                                                            logger,
+                                                            args,
+                                                            current_time)
+
+    with open("./data/training_data/gae_{}_{}_{}_{}_{}.pkl".format(args.encoder,
+                                                            args.num_hidden,
+                                                            args.out_dim,
+                                                            args.num_layers,
+                                                            current_time), 'wb') as handle:
+        pickle.dump([train_stats, val_stats, best_representation], handle, protocol=pickle.HIGHEST_PROTOCOL)
+
 
 if __name__ == '__main__':
     args = build_args()
     if args.use_cfg:
         args = load_best_configs(args, "configs.yml")
     logging.info(args)
-    options = {
-            "architecture":"GAE",
-            "encoder_type":args.encoder,
-            "hidden_space": args.num_hidden
-    }
 
-    current_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     # open data
     dataset = 'polish_cities'
     dataset_dir = './data/raw_data/'
-    train_graphs, val_graph = load_data(dataset_dir+dataset+'.bin')
-    # init model
-    model = build_model(args, 'gae')
-    logger = TBLogger(name="{}_{}".format(dataset, current_time), entity="fdrewnowski", options=options)
-    print(model.eval())
-    # init optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    last_model, train_stats, val_stats, best_representation = train_gae(model, optimizer, train_graphs, val_graph, logger, epochs=args.max_epoch)
+    train_graphs, val_graphs = load_data(dataset_dir+dataset+'.bin')
 
-    import pickle
-    with open("./data/raw_data/GAE_{}.pkl".format(datetime.now().strftime('%Y_%m_%d_%H_%M')), 'wb') as handle:
-        pickle.dump([train_stats, val_stats, best_representation], handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # init model
+    setup_gae_training(args, train_graphs, val_graphs, dataset)
