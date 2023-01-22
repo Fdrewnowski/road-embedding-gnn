@@ -53,6 +53,11 @@ def build_args() -> argparse.Namespace:
                         help='Path where transformed data will be stored')
     parser.add_argument('-t', '--targets', nargs='+', default=None,
                         help='Path or paths of graphml files which should be ignored when using -a option so that train and test data are split')
+    parser.add_argument('-tr', '--training', nargs='+', default=None,
+                        help='Path to directory with training graphs')
+    parser.add_argument('-val', '--validation', nargs='+', default=None,
+                        help='Path to directory with validation graphs')
+    
     return parser.parse_args()
 
 

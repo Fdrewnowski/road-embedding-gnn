@@ -5,6 +5,8 @@ import networkx as nx
 import osmnx as ox
 from tqdm import tqdm
 
+from params import TRAINING_SET, VALIDATION_SET
+
 
 def build_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='bikeguessr_download_cycleway')
@@ -13,6 +15,9 @@ def build_args() -> argparse.Namespace:
     data_to_download.add_argument('-w', '--wroclaw', action='store_true')
     data_to_download.add_argument('-g', '--gdansk', action='store_true')
     data_to_download.add_argument('-wa', '--walbrzych', action='store_true')
+    parser.add_argument('-t', '--train', action='store_true')
+    parser.add_argument('-v', '--validation', action='store_true')
+
     return parser.parse_args()
 
 
@@ -20,7 +25,7 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
     
 
-def download_graph(place: str):
+def download_graph(place: str, target_dir: str):
     place_parts = place.split(',')
     assert len(place_parts) >= 1
     output = place_parts[0] + "_" + place_parts[-1]+"_recent"
@@ -67,7 +72,7 @@ def download_graph(place: str):
     # print("Saving")
     merged_graph = ox.utils_graph.remove_isolated_nodes(merged_graph_copy)
     merged_graph.name = output
-    ox.save_graphml(merged_graph, filepath="./data/data_raw/{}.xml".format(output))
+    ox.save_graphml(merged_graph, filepath="./data/{}/{}.xml".format(target_dir, output))
 
 
 if __name__ == "__main__":
@@ -93,11 +98,21 @@ if __name__ == "__main__":
         places_to_download = ["Gdańsk, województwo pomorskie, Polska"]
     if args.walbrzych:
         places_to_download = ["Wałbrzych, województwo dolnośląskie, Polska"]
+    
+    target_dir = "data_train"
+    if args.train:
+        target_dir= "data_train"
+        places_to_download = TRAINING_SET
+    if args.validation:
+        target_dir = "data_val"
+        places_to_download = VALIDATION_SET
+
+
     place_iter = tqdm(places_to_download, total=len(places_to_download))
     for place in place_iter:
         place_iter.set_description(
             f"# {place}")
-        #try:
-        download_graph(place)
-        #except:
-        #    logging.warning(f'{place} was corrupted. Skipping...')
+        try:
+            download_graph(place, target_dir)
+        except:
+            logging.warning(f'{place} was corrupted. Skipping...')
