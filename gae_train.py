@@ -218,7 +218,6 @@ if __name__ == '__main__':
                                                         max_epoch=args.max_epoch,
                                                         max_epoch_f=args.max_epoch_f,
                                                         mask_rate=args.mask_rate,
-                                                        encoder=args.encoder,
                                                         decoder=args.decoder,
                                                         activation=args.activation,
                                                         in_drop=args.in_drop,

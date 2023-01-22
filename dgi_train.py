@@ -66,7 +66,7 @@ def train_dgi(model, optimizer, train_graphs, val_graphs, logger, args, experime
                     x = val_graph.ndata["feat"].to(device)
 
                     best_val_representations.append(model.encoder(g, x).cpu().detach().numpy())
-                    
+
 
             torch.save(model.cpu().state_dict(), 
                         "data/models/dgi/dgi_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
@@ -177,7 +177,6 @@ if __name__ == '__main__':
                                                         max_epoch=args.max_epoch,
                                                         max_epoch_f=args.max_epoch_f,
                                                         mask_rate=args.mask_rate,
-                                                        encoder=args.encoder,
                                                         decoder=args.decoder,
                                                         activation=args.activation,
                                                         in_drop=args.in_drop,
