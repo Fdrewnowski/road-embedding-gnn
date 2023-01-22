@@ -129,10 +129,10 @@ dmypy.json
 .pyre/
 
 # my files
-secret.py
 wandb/
 data/models
 data/raw_data
 data/transformed
+data/
 cache/
 *__pycache__/
