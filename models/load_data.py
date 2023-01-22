@@ -7,6 +7,15 @@ def load_data(graphs_dir):
     val_graph = graphs[-2:]
     return train_graphs, val_graph
 
+def load_train_and_val_data():
+    train_graph_dir = "data/data_train/training_graphs.bin"
+    val_graph_dir = "data/data_val/validation_graphs.bin"
+
+    training_graphs = load_graphs(train_graph_dir)[0]
+    val_graphs = load_graphs(val_graph_dir)[0]
+
+    return training_graphs, val_graphs
+
 
 # def load_bikeguessr_dataset(filepath: str) -> Tuple[List[DGLHeteroGraph], Tuple[int, int]]:
 #     logging.info('load bikeguessr dataset')

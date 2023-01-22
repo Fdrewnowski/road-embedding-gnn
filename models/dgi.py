@@ -6,7 +6,6 @@ from torch import Tensor
 from torch.nn import Module
 import torch.nn.functional as F
 from .setup import setup_module
-from torch_geometric.utils import negative_sampling
 
 
 class Discriminator(nn.Module):
