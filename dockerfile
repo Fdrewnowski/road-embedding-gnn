@@ -4,14 +4,17 @@ RUN mkdir road_embedding_gnn
 
 WORKDIR road_embedding_gnn
 
-RUN mkdir ./data/models/dgi
-RUN mkdir ./data/models/gae
-RUN mkdir ./data/models/graphmae
-RUN mkdir ./data/training_data/dgi
-RUN mkdir ./data/training_data/gae
-RUN mkdir ./data/training_data/graphmae
-RUN mkdir ./data/data_train
-RUN mkdir ./data/data_val
+RUN mkdir data
+RUN mkdir data/models
+RUN mkdir data/models/dgi
+RUN mkdir data/models/gae
+RUN mkdir data/models/graphmae
+RUN mkdir data/training_data
+RUN mkdir data/training_data/dgi
+RUN mkdir data/training_data/gae
+RUN mkdir data/training_data/graphmae
+RUN mkdir data/data_train
+RUN mkdir data/data_val
 
 RUN python -m pip install --upgrade pip
 
