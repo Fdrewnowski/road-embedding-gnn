@@ -120,6 +120,9 @@ def build_args():
     parser.add_argument("--deg4feat", action="store_true",
                         default=False, help="use node degree as input feature")
     parser.add_argument("--batch_size", type=int, default=32)
+    
+    parser.add_argument("--full_pipline", action="store_true")
+
     args = parser.parse_args()
     return args
 
@@ -290,3 +293,54 @@ class NormLayer(nn.Module):
         std = ((std.T / batch_list).T + 1e-6).sqrt()
         std = std.repeat_interleave(batch_list, dim=0)
         return self.weight * sub / std + self.bias
+
+
+class ArgParser():
+    def __init__(self,
+        lr= 0.001,
+        lr_f= 0.01,
+        num_hidden= 128,
+        out_dim= 64,
+        num_heads= 4,
+        num_layers= 2,
+        weight_decay= 2e-4,
+        weight_decay_f= 1e-4,
+        max_epoch= 500,
+        max_epoch_f= 50,
+        mask_rate= 0.5,
+        encoder= 'gat',
+        decoder= 'gat',
+        activation= 'prelu',
+        in_drop= 0.2,
+        attn_drop= 0.1,
+        linear_prob= True,
+        loss_fn= 'sce' ,
+        drop_edge_rate= 0.0,
+        optimizer= 'adam',
+        replace_rate= 0.05 ,
+        alpha_l= 3,
+        norm= 'batchnorm') -> None:
+
+        self.lr = lr
+        self.lr_f = lr_f
+        self.num_hidden = num_hidden
+        self.out_dim = out_dim
+        self.num_heads = num_heads
+        self.num_layers = num_layers
+        self.weight_decay = weight_decay
+        self.weight_decay_f = weight_decay_f
+        self.max_epoch = max_epoch
+        self.max_epoch_f = max_epoch_f
+        self.mask_rate = mask_rate
+        self.encoder = encoder
+        self.decoder = encoder
+        self.activation = activation
+        self.in_drop = in_drop
+        self.attn_drop = attn_drop
+        self.linear_prob = linear_prob
+        self.loss_fn = loss_fn 
+        self.drop_edge_rate = drop_edge_rate
+        self.optimizer = optimizer
+        self.replace_rate = replace_rate 
+        self.alpha_l = alpha_l
+        self.norm = norm
