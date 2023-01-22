@@ -24,6 +24,7 @@ logging.basicConfig(
 
 def train_transductive(args, train_graphs, val_graphs, dataset):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    current_time = datetime.now().strftime("%m_%d_%H_%M_%S")
     #device = 'cpu'
     logging.info("using device: {}".format(device))
     max_epoch = args.max_epoch
@@ -66,7 +67,6 @@ def train_transductive(args, train_graphs, val_graphs, dataset):
     "norm": args.norm,
     "current_time": current_time
     }
-    current_time = datetime.now().strftime("%m_%d_%H_%M_%S")
     logger = TBLogger(name=f"{options['architecture']}_{current_time}", options=options)
 
 
@@ -94,7 +94,7 @@ def train_transductive(args, train_graphs, val_graphs, dataset):
     if logger is not None:
         logger.finish()
 
-    with open("./data/training_data/graphmae_{}_{}_{}_{}_{}_{}.pkl".format(args.encoder,
+    with open("./data/training_data/graphmae/graphmae_{}_{}_{}_{}_{}_{}.pkl".format(args.encoder,
                                                         args.num_hidden,
                                                         args.out_dim,
                                                         args.num_layers,
@@ -185,7 +185,7 @@ def pretrain(args,
             early_stopping_counter = 0
             best_val_representations = val_representations
             torch.save(model.cpu().state_dict(),
-                        "./data/models/gmae_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
+                        "./data/models/graphmae/gmae_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
                                                                 args.num_hidden,
                                                                 args.out_dim,
                                                                 args.num_layers,
@@ -230,7 +230,6 @@ if __name__ == '__main__':
                                                         max_epoch=args.max_epoch,
                                                         max_epoch_f=args.max_epoch_f,
                                                         mask_rate=args.mask_rate,
-                                                        encoder=args.encoder,
                                                         decoder=args.decoder,
                                                         activation=args.activation,
                                                         in_drop=args.in_drop,

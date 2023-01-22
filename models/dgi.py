@@ -93,7 +93,7 @@ class DGI(nn.Module):
 
 
 
-        self.discriminator = Discriminator(enc_out_dim, enc_out_dim)
+        self.discriminator = Discriminator(out_dim, out_dim)
         self.loss = nn.BCEWithLogitsLoss()
 
     def forward(self, g, features):

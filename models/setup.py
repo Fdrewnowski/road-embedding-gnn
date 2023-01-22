@@ -29,7 +29,7 @@ def setup_module(m_type, enc_dec, in_dim, num_hidden, out_dim, num_layers, dropo
             attn_drop=attn_drop,
             negative_slope=negative_slope,
             residual=residual,
-            norm=create_norm(norm),
+            norm=None,#create_norm(norm),
             encoding=(enc_dec == "encoding"),
         )
     elif m_type == "gin":
@@ -53,7 +53,7 @@ def setup_module(m_type, enc_dec, in_dim, num_hidden, out_dim, num_layers, dropo
             dropout=dropout, 
             activation=activation, 
             residual=residual, 
-            norm=create_norm(norm),
+            norm=None,#create_norm(norm),
             encoding=(enc_dec == "encoding")
         )
     elif m_type == "mlp":

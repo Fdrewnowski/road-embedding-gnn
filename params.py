@@ -53,7 +53,7 @@ TRAINING_SET = [
                 "Namur, Walonia, Belgia",
 
                 "Utrecht, Niderlandy, Holandia",
-                "Birmingham, West Midlands Combined Authority, Anglia, Wielka Brytania"
+                "Birmingham, West Midlands Combined Authority, Anglia, Wielka Brytania",
                 "Lyon, Métropole de Lyon, Rhône, Owernia-Rodan-Alpy, Francja metropolitalna, Francja",
                 
                 "Brno, okres Brno-město, Kraj południowomorawski, Południowo-wschodni, Czechy",
