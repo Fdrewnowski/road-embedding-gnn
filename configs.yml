@@ -7,8 +7,8 @@ bikeguessr:
   num_layers: 2
   weight_decay: 0 # better without 2e-4
   weight_decay_f: 1e-4
-  max_epoch: 500
-  max_epoch_f: 50
+  max_epoch: 600
+  max_epoch_f: 100
   mask_rate: 0.5
   encoder: gat
   decoder: gat
