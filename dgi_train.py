@@ -159,11 +159,11 @@ if __name__ == '__main__':
     directory = './data/raw_data/'
     if args.full_pipline:
         train_graphs, val_graphs = load_train_and_val_data()
-        for encoder in ENCODER:
+        for lr in LR:
             for layers in NUM_LAYERS:
-                for num_out in NUM_OUT:
-                    for num_hidden in NUM_HIDDEN:
-                        for lr in LR:
+                for encoder in ENCODER:
+                    for num_out in NUM_OUT:
+                        for num_hidden in NUM_HIDDEN:
                             try:
                                 args_object = ArgParser(lr=lr,
                                                         num_hidden=num_hidden, 
