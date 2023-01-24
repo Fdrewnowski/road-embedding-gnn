@@ -10,7 +10,7 @@ from params import TRAINING_SET, VALIDATION_SET
 
 def build_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='bikeguessr_download_cycleway')
-    data_to_download = parser.add_mutually_exclusive_group(required=True)
+    data_to_download = parser.add_mutually_exclusive_group(required=False)
     data_to_download.add_argument('-a', '--all', action='store_true')
     data_to_download.add_argument('-w', '--wroclaw', action='store_true')
     data_to_download.add_argument('-g', '--gdansk', action='store_true')
