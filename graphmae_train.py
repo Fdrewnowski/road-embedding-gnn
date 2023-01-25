@@ -7,6 +7,7 @@ from typing import List, Tuple, Union
 
 import numpy as np
 import torch
+import torch.nn as nn
 from dgl.data.utils import load_graphs
 from dgl.heterograph import DGLHeteroGraph
 from tqdm import tqdm
@@ -72,6 +73,8 @@ def train_transductive(args, train_graphs, val_graphs, dataset):
 
     model = build_model(args, 'graphmae')
     print(model.eval())
+    #model= nn.DataParallel(model)
+
     model.to(device)
     optimizer = create_optimizer(optim_type, model, lr, weight_decay)
 
@@ -220,7 +223,7 @@ if __name__ == '__main__':
                             try:
                                 args_object = ArgParser(lr=lr,
                                                         num_hidden=num_hidden, 
-                                                        num_out=num_out,
+                                                        out_dim=num_out,
                                                         num_layers=layers,
                                                         encoder=encoder,
                                                         lr_f=args.lr_f,
@@ -242,7 +245,8 @@ if __name__ == '__main__':
                                                         alpha_l=args.alpha_l,
                                                         norm=args.norm)
                                 train_transductive(args_object, train_graphs, val_graphs, dataset)
-                            except:
+                            except Exception as e:
+                                print(str(e))
                                 print("FAILED for model GraphMAE with {},{},{},{},{}".format(encoder,
                                                                                         layers,
                                                                                         num_out,

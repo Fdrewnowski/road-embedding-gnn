@@ -2,6 +2,7 @@
 import logging
 import datetime
 import torch
+import torch.nn as nn
 from datetime import datetime
 from models import GraphMAE, build_model
 import pickle
@@ -112,7 +113,7 @@ def train_gae(model, optimizer, train_graphs, val_graphs, logger, args, experime
             best_representation = val_representations
 
             torch.save(model.cpu().state_dict(),
-                        "data/models/gae/gae_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
+                        "./data/models/gae/gae_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
                                                                 args.num_hidden,
                                                                 args.out_dim,
                                                                 args.num_layers,
@@ -169,6 +170,8 @@ def setup_gae_training(args, train_graphs, val_graph, dataset):
     logger = TBLogger(name="{}_{}".format(options['architecture'], current_time), entity="fdrewnowski", options=options)
     model = build_model(args, 'gae')
     print(model.eval())
+    #model= nn.DataParallel(model)
+
     model.to(device)
     dgi_optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     train_stats, val_stats, best_representation = train_gae(model, 
@@ -208,7 +211,7 @@ if __name__ == '__main__':
                             try:
                                 args_object = ArgParser(lr=lr,
                                                         num_hidden=num_hidden, 
-                                                        num_out=num_out,
+                                                        out_dim=num_out,
                                                         num_layers=layers,
                                                         encoder=encoder,
                                                         lr_f=args.lr_f,
@@ -230,7 +233,8 @@ if __name__ == '__main__':
                                                         alpha_l=args.alpha_l,
                                                         norm=args.norm)
                                 setup_gae_training(args_object, train_graphs, val_graphs, dataset)
-                            except:
+                            except Exception as e:
+                                print(str(e))
                                 print("FAILED for model GAE with {},{},{},{},{}".format(encoder,
                                                                                         layers,
                                                                                         num_out,

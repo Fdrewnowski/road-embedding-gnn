@@ -40,7 +40,7 @@ COPY ./graphmae_train.py ./graphmae_train.py
 COPY ./download_graphs.py ./download_graphs.py
 COPY ./transform_graphs.py ./transform_graphs.py
 
-VOLUME ./data ./data
+#VOLUME ./data ./data
 COPY ./train_models.sh ./train_models.sh
 CMD ["/bin/bash", "./train_models.sh"]
 

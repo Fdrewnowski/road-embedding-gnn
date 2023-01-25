@@ -344,3 +344,18 @@ class ArgParser():
         self.replace_rate = replace_rate 
         self.alpha_l = alpha_l
         self.norm = norm
+        
+        self.scheduler = False
+        self.num_out_heads = 1
+        self.seeds = [2137]
+        self.warmup_steps = -1
+        self.num_features = 11
+        self.residual = False
+        self.negative_slope = 0.2
+        self.eval_epoch = 10
+        self.eval_repeats = 5
+        self.targets = None
+        self.pooling = "mean"
+        self.deg4feat = False
+        self.batch_size = 32
+        self.concat_hidden = False
