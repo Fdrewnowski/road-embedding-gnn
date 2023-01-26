@@ -67,14 +67,17 @@ def train_dgi(model, optimizer, train_graphs, val_graphs, logger, args, experime
 
                     best_val_representations.append(model.encoder(g, x).cpu().detach().numpy())
 
-            torch.save(model.cpu().state_dict(), 
-                        "./data/models/dgi/dgi_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
-                                                                args.num_hidden,
-                                                                args.out_dim,
-                                                                args.num_layers,
-                                                                args.lr,
-                                                                experiment_time)
-                        )
+            try:
+                torch.save(model.cpu().state_dict(), 
+                            "./data/models/dgi/dgi_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
+                                                                    args.num_hidden,
+                                                                    args.out_dim,
+                                                                    args.num_layers,
+                                                                    args.lr,
+                                                                    experiment_time)
+                            )
+            except Exception as e:
+                print(str(e))
         
         logging_dict = {}
         logging_dict['Loss/train'] = total_loss/len(train_graphs)

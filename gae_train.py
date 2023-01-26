@@ -112,14 +112,17 @@ def train_gae(model, optimizer, train_graphs, val_graphs, logger, args, experime
             early_stopping_counter = 0
             best_representation = val_representations
 
-            torch.save(model.cpu().state_dict(),
-                        "./data/models/gae/gae_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
-                                                                args.num_hidden,
-                                                                args.out_dim,
-                                                                args.num_layers,
-                                                                args.lr,
-                                                                experiment_time)
-                        )
+            try:
+                torch.save(model.cpu().state_dict(),
+                            "./data/models/gae/gae_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
+                                                                    args.num_hidden,
+                                                                    args.out_dim,
+                                                                    args.num_layers,
+                                                                    args.lr,
+                                                                    experiment_time)
+                            )
+            except Exception as e:
+                print(str(e))
 
         if early_stopping_counter >= early_stopping:
             break
