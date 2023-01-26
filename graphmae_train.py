@@ -187,13 +187,16 @@ def pretrain(args,
             best_loss = total_val_loss
             early_stopping_counter = 0
             best_val_representations = val_representations
-            torch.save(model.cpu().state_dict(),
-                        "./data/models/graphmae/gmae_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
-                                                                args.num_hidden,
-                                                                args.out_dim,
-                                                                args.num_layers,
-                                                                args.lr,
-                                                                experiment_time))
+            try:
+                torch.save(model.cpu().state_dict(),
+                            "./data/models/graphmae/gmae_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
+                                                        args.num_hidden,
+                                                        args.out_dim,
+                                                        args.num_layers,
+                                                        args.lr,
+                                                        experiment_time))
+            except Exception as e:
+                print(str(e))
 
 
         if early_stopping_counter >= early_stopping:
