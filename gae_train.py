@@ -6,7 +6,7 @@ import torch.nn as nn
 from datetime import datetime
 from models import GraphMAE, build_model
 import pickle
-
+import os
 from models.load_data import load_data, load_train_and_val_data
 from tqdm import tqdm
 from torch_geometric.utils import negative_sampling
@@ -197,6 +197,11 @@ if __name__ == '__main__':
     if args.use_cfg:
         args = load_best_configs(args, "configs.yml")
     logging.info(args)
+
+    if not os.path.exists("./data/models/gae"):
+        os.makedirs("./data/models/gae")
+    if not os.path.exists("./data/training_data/gae"):
+        os.makedirs("./data/training_data/gae")
 
     # open data
     dataset = 'polish_cities'
