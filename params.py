@@ -1,9 +1,9 @@
 
 
 # Model params
-LR = [0.001, 0.00015]
+LR = [0.001]
 ENCODER = ['gcn', 'gat', 'gin']
-NUM_LAYERS = [2,3,4]
+NUM_LAYERS = [2,3]
 NUM_HIDDEN = [256, 512, 1024]
 NUM_OUT = [32, 64, 128]
 
