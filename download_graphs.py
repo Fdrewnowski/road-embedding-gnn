@@ -4,7 +4,7 @@ import logging
 import networkx as nx
 import osmnx as ox
 from tqdm import tqdm
-
+import os
 from params import TRAINING_SET, VALIDATION_SET
 
 
@@ -103,9 +103,13 @@ if __name__ == "__main__":
     if args.train:
         target_dir= "data_train"
         places_to_download = TRAINING_SET
+        if not os.path.exists("./data/data_train"):
+            os.makedirs("./data/data_train")
     if args.validation:
         target_dir = "data_val"
         places_to_download = VALIDATION_SET
+        if not os.path.exists("./data/data_val"):
+            os.makedirs("./data/data_val")
 
 
     place_iter = tqdm(places_to_download, total=len(places_to_download))
