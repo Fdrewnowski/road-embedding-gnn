@@ -213,6 +213,11 @@ if __name__ == '__main__':
     dataset = 'polish_cities'
     dataset_dir = './data/raw_data/'
 
+    if not os.path.exists("./data/models/graphmae"):
+        os.makedirs("./data/models/graphmae")
+    if not os.path.exists("./data/training_data/graphmae"):
+        os.makedirs("./data/training_data/graphmae")
+
     if args.full_pipline:
         train_graphs, val_graphs = load_train_and_val_data()
         for lr in LR:

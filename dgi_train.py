@@ -3,7 +3,7 @@ import logging
 import time
 from models import build_model
 import pickle
-
+import os 
 import networkx as nx
 import numpy as np
 import torch
@@ -66,7 +66,6 @@ def train_dgi(model, optimizer, train_graphs, val_graphs, logger, args, experime
                     x = val_graph.ndata["feat"].to(device)
 
                     best_val_representations.append(model.encoder(g, x).cpu().detach().numpy())
-
 
             torch.save(model.cpu().state_dict(), 
                         "./data/models/dgi/dgi_{}_{}_{}_{}_{}_{}.bin".format(args.encoder,
@@ -155,6 +154,10 @@ if __name__ == '__main__':
         args = load_best_configs(args, "configs.yml")
     logging.info(args)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if not os.path.exists("./data/models/dgi"):
+        os.makedirs("./data/models/dgi")
+    if not os.path.exists("./data/training_data/dgi"):
+        os.makedirs("./data/training_data/dgi")
 
     dataset = 'polish_cities'
     directory = './data/raw_data/'
