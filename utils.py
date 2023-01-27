@@ -67,7 +67,7 @@ def build_args():
                         help="number of hidden layers")
     parser.add_argument("--num_hidden", type=int, default=256,
                         help="number of hidden units")
-    parser.add_argument("--num_features", type=int, default=11,
+    parser.add_argument("--num_features", type=int, default=95,
                         help="number of features in dataset")
     parser.add_argument("--residual", action="store_true", default=False,
                         help="use residual connection")
@@ -349,7 +349,7 @@ class ArgParser():
         self.num_out_heads = 1
         self.seeds = [2137]
         self.warmup_steps = -1
-        self.num_features = 11
+        self.num_features = 95
         self.residual = False
         self.negative_slope = 0.2
         self.eval_epoch = 10

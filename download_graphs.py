@@ -31,6 +31,15 @@ def download_graph(place: str, target_dir: str):
     output = place_parts[0] + "_" + place_parts[-1]+"_recent"
     #output = place_parts[0] + "_" + place_parts[-1]+"_recent"
     output = output.replace(' ', "")
+
+    useful_tags_path = ['bridge', 'tunnel', 'oneway', 'lanes', 'ref', 'name',
+                        'highway', 'maxspeed', 'service', 'access', 'area',
+                        'landuse', 'width', 'est_width', 'junction', 'surface',
+                        'bicycle', 'cycleway', 'busway', 'sidewalk', 'psv']
+    ox.utils.config(useful_tags_way=useful_tags_path)
+
+
+
     gdf = ox.geocoder.geocode_to_gdf(place)#, by_osmid=True)
     polygon = gdf['geometry'][0]
     filters = ['["highway"~"cycleway"]', '["bicycle"~"designated"]', '["bicycle"~"permissive"]', '["bicycle"~"yes"]','["cycleway"~"lane"]','["cycleway"~"track"]']
