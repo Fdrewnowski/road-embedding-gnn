@@ -4,8 +4,8 @@
 LR = [0.001]
 ENCODER = ['gcn', 'gat', 'gin']
 NUM_LAYERS = [2,3]
-NUM_HIDDEN = [128, 256, 512]
-NUM_OUT = [32, 64, 128]
+NUM_HIDDEN = [16,32,64]# old [128, 256, 512]
+NUM_OUT = [16, 32]
 
 # training params
 MAX_EPOCHS = [500]
