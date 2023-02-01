@@ -5,10 +5,10 @@ bikeguessr:
   out_dim: 64
   num_heads: 4
   num_layers: 2
-  weight_decay: 0 # better without 2e-4
+  weight_decay: 2e-5 # better without 2e-4
   weight_decay_f: 1e-4
-  max_epoch: 600
-  max_epoch_f: 30
+  max_epoch: 100
+  max_epoch_f: 5
   mask_rate: 0.5
   encoder: gat
   decoder: gat
